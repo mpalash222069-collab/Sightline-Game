@@ -1,0 +1,1526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sightline — Joker's Sanctum</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700;900&family=Rajdhani:wght@600;700;800&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; user-select: none; }
+    body {
+      background: #070206;
+      color: #dfced9;
+      font-family: 'Rajdhani', 'Segoe UI', Consolas, monospace, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: space-between;
+      width: 100vw;
+      height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    #top-bar {
+      width: 100vw;
+      height: 36px;
+      background: rgba(9, 3, 8, 0.98);
+      border-bottom: 2px solid #2d0e20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+    .logo {
+      font-family: 'Cinzel', serif;
+      font-size: 15px;
+      font-weight: 900;
+      color: #d83a56;
+      letter-spacing: 2px;
+    }
+    .badge-rack { display: flex; align-items: center; gap: 10px; }
+    .agent-pill {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: #140711;
+      border: 1.5px solid #431229;
+      padding: 2px 10px;
+      border-radius: 4px;
+      font-size: 11px;
+      transition: all 0.3s ease;
+    }
+    .agent-pill.wounded {
+      border-color: #ff597a !important;
+      background: #2b0b18 !important;
+      animation: pulse-wound 1.4s infinite;
+    }
+    @keyframes pulse-wound {
+      0%, 100% { box-shadow: 0 0 4px rgba(255, 89, 122, 0.4); }
+      50% { box-shadow: 0 0 12px rgba(255, 89, 122, 0.85); }
+    }
+    .h-hearts { color: #d83a56; font-size: 11px; letter-spacing: 2px; font-weight: bold; }
+    .h-traps { color: #3498db; font-size: 10px; font-weight: 700; letter-spacing: 1px; }
+    .h-ammo { color: #f7a23b; font-size: 10px; font-weight: 800; }
+    .h-status { font-size: 9px; padding: 1px 4px; border-radius: 2px; font-weight: 800; }
+
+    #center-viewport {
+      flex: 1;
+      width: 100vw;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background: #070206;
+      overflow: hidden;
+    }
+    #pixi-mount {
+      box-shadow: 0 0 60px rgba(0,0,0,0.98), 0 0 0 2px #260a1a;
+      border-radius: 4px;
+      position: relative;
+      transition: transform 0.95s cubic-bezier(0.2, 0.9, 0.3, 1), transform-origin 0.4s ease;
+    }
+
+    #chronicle-pill {
+      position: absolute;
+      bottom: 52px;
+      right: 18px;
+      background: rgba(9, 3, 8, 0.94);
+      border: 1px solid #d83a56;
+      color: #fce8ef;
+      font-size: 11px;
+      padding: 5px 16px;
+      border-radius: 4px;
+      max-width: 520px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      box-shadow: 0 4px 18px rgba(0,0,0,0.9);
+      z-index: 40;
+    }
+
+    #cinematic-bars {
+      position: absolute;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      pointer-events: none;
+      z-index: 90;
+      opacity: 0;
+      transition: opacity 0.6s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #cinematic-bars.active { opacity: 1; }
+    .c-bar {
+      width: 100vw;
+      height: 48px;
+      background: #040103;
+      border-bottom: 2px solid #d83a56;
+    }
+    .c-bar.bottom {
+      border-bottom: none;
+      border-top: 2px solid #d83a56;
+    }
+    #cinematic-banner {
+      background: rgba(14, 5, 12, 0.96);
+      border: 2px solid #d83a56;
+      border-radius: 4px;
+      padding: 8px 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0 0 40px rgba(216, 58, 86, 0.85);
+      transform: translateY(-20px);
+    }
+    #cinematic-title {
+      font-family: 'Cinzel', serif;
+      font-size: 17px;
+      font-weight: 900;
+      color: #ff597a;
+      letter-spacing: 4px;
+      text-shadow: 0 0 12px rgba(216, 58, 86, 0.85);
+    }
+    #cinematic-subtitle {
+      font-size: 11px;
+      font-weight: 700;
+      color: #f7a23b;
+      letter-spacing: 2px;
+    }
+
+    #bottom-dock {
+      width: 100vw;
+      height: 42px;
+      background: rgba(9, 3, 8, 0.98);
+      border-top: 2px solid #2d0e20;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 50;
+      flex-shrink: 0;
+    }
+    .dock-left { display: flex; align-items: center; gap: 4px; }
+    .dock-right { display: flex; align-items: center; gap: 8px; }
+
+    .tool-btn {
+      background: #140711;
+      border: 1px solid #431229;
+      color: #c9b5c2;
+      padding: 2px 8px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 3px;
+      transition: all 0.15s ease;
+    }
+    .tool-btn:hover { border-color: #d83a56; color: #fff; background: #260c1c; }
+    .tool-btn.active {
+      background: #46142a;
+      border-color: #d83a56;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(216, 58, 86, 0.5);
+    }
+
+    .btn-vault-toggle {
+      background: #2a1122;
+      border: 1px solid #d83a56;
+      color: #ffd7e2;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 10px;
+      height: 28px;
+      cursor: pointer;
+      border-radius: 3px;
+    }
+
+    .btn-redesign {
+      background: #1b1c2b;
+      border: 1.5px solid #5a65a5;
+      color: #dbe4ff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 9px;
+      height: 28px;
+      cursor: pointer;
+      border-radius: 3px;
+      letter-spacing: 1px;
+      transition: all 0.2s ease;
+    }
+    .btn-redesign:hover {
+      background: #2b3058;
+      border-color: #7b8af5;
+      color: #fff;
+      box-shadow: 0 0 12px rgba(123, 138, 245, 0.5);
+    }
+
+    .speed-group { display: flex; align-items: center; gap: 2px; margin-left: 6px; }
+    .speed-btn {
+      background: #180a15;
+      border: 1px solid #431229;
+      color: #b09ba9;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      height: 26px;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .speed-btn:hover { border-color: #f7a23b; color: #fff; }
+    .speed-btn.active {
+      background: #d83a56;
+      border-color: #fff;
+      color: #fff;
+    }
+
+    .btn-action {
+      background: #9b2d4b;
+      border: 1px solid #ff597a;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      letter-spacing: 1px;
+    }
+    .btn-action:hover { background: #ba375a; box-shadow: 0 0 14px rgba(216, 58, 86, 0.6); }
+    .btn-action.pause { background: #381b28; border-color: #79324e; }
+
+    #vault-drawer {
+      position: absolute;
+      bottom: 46px;
+      left: 16px;
+      background: rgba(14, 5, 12, 0.98);
+      border: 2px solid #d83a56;
+      border-radius: 6px;
+      padding: 14px;
+      display: none;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.95);
+      z-index: 100;
+      max-width: 540px;
+    }
+    #vault-drawer.open { display: flex; }
+    .vault-title {
+      font-family: 'Cinzel', serif;
+      font-size: 13px;
+      font-weight: 900;
+      color: #d83a56;
+      display: flex;
+      justify-content: space-between;
+      border-bottom: 1px solid #3d1425;
+      padding-bottom: 4px;
+    }
+    .vault-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+    .vault-card {
+      background: #180915;
+      border: 1px solid #431229;
+      border-radius: 4px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .vault-card:hover { border-color: #d83a56; background: #260c1c; }
+    .vault-card.active { border-color: #ff597a; background: #46142a; }
+    .v-img { width: 32px; height: 32px; image-rendering: pixelated; }
+    .v-name { font-size: 11px; font-weight: 800; color: #fff; }
+    .v-sub { font-size: 9px; color: #f7a23b; }
+  </style>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/7.3.2/pixi.min.js"></script>
+</head>
+<body>
+
+  <div id="top-bar">
+    <div class="logo">SIGHTLINE <span style="font-size:10px; color:#f7a23b; font-family:'Rajdhani', sans-serif;">JOKER'S SANCTUM</span></div>
+    <div id="badges-dock" class="badge-rack"></div>
+    <div id="round-stat" style="font-size: 11px; color: #f7a23b; font-family: monospace;">CYCLE 1 | EDITING</div>
+  </div>
+
+  <div id="center-viewport">
+    <div id="pixi-mount"></div>
+    <div id="chronicle-pill">» Standing by at the bonfire...</div>
+
+    <div id="cinematic-bars">
+      <div class="c-bar"></div>
+      <div id="cinematic-banner">
+        <div id="cinematic-title">FATAL EXECUTION</div>
+        <div id="cinematic-subtitle">POINT-BLANK PROXIMITY STRIKE</div>
+      </div>
+      <div class="c-bar bottom"></div>
+    </div>
+  </div>
+
+  <div id="vault-drawer">
+    <div class="vault-title">
+      <span>TACTICAL VAULT</span>
+      <span style="cursor:pointer; color:#ff597a;" onclick="toggleVaultDrawer()">✕ CLOSE</span>
+    </div>
+    <div class="vault-grid">
+      <div class="vault-card active" onclick="setSlot('GUN')">
+        <canvas id="vc-gun" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Rifle</span>
+        <span class="v-sub">1-Shot Kill (Range 2 on Joker)</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('SWORD')">
+        <canvas id="vc-sword" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Sword</span>
+        <span class="v-sub">Adjacent 2-Stab Blade</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('WALL')">
+        <canvas id="vc-wall" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Wall</span>
+        <span class="v-sub">Raised Citadel Rampart</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('TRAP_SPIKE')">
+        <canvas id="vc-spike" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Spike Trap</span>
+        <span class="v-sub">Caltrops (-1 Trap Life)</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('TRAP_STUN')">
+        <canvas id="vc-stun" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Shock Trap</span>
+        <span class="v-sub">EMP Drone</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('AOE_ACID')">
+        <canvas id="vc-acid" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Acid Pool</span>
+        <span class="v-sub">Caustic Basin</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('AOE_MAGMA')">
+        <canvas id="vc-magma" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Magma Pool</span>
+        <span class="v-sub">Volcanic Vent</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('EMPTY')">
+        <div style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; color:#ff597a; font-size:20px; font-weight:bold;">✕</div>
+        <span class="v-name">Eraser</span>
+        <span class="v-sub">Clear Tile</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('AGENT_0')">
+        <canvas id="vc-ag0" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Ranger</span>
+        <span class="v-sub">A* Pathfinder</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('AGENT_1')">
+        <canvas id="vc-ag1" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Alchemist</span>
+        <span class="v-sub">SA Operative</span>
+      </div>
+      <div class="vault-card" onclick="setSlot('AGENT_2')">
+        <canvas id="vc-ag2" class="v-img" width="32" height="32"></canvas>
+        <span class="v-name">Vanguard</span>
+        <span class="v-sub">GA Operative</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="bottom-dock">
+    <div class="dock-left">
+      <button class="btn-vault-toggle" onclick="toggleVaultDrawer()">📦 VAULT</button>
+      <button class="btn-redesign" onclick="redesignMap()">🎲 REDESIGN</button>
+      <span style="color:#2d0e20; margin: 0 4px;">|</span>
+      <button class="tool-btn active" id="tb-GUN" onclick="setSlot('GUN')">RIFLE</button>
+      <button class="tool-btn" id="tb-SWORD" onclick="setSlot('SWORD')">SWORD</button>
+      <button class="tool-btn" id="tb-WALL" onclick="setSlot('WALL')">WALL</button>
+      <button class="tool-btn" id="tb-TRAP_SPIKE" onclick="setSlot('TRAP_SPIKE')">SPIKE</button>
+      <button class="tool-btn" id="tb-TRAP_STUN" onclick="setSlot('TRAP_STUN')">SHOCK</button>
+      <button class="tool-btn" id="tb-AOE_ACID" onclick="setSlot('AOE_ACID')">ACID</button>
+      <button class="tool-btn" id="tb-AOE_MAGMA" onclick="setSlot('AOE_MAGMA')">MAGMA</button>
+      <button class="tool-btn" id="tb-EMPTY" onclick="setSlot('EMPTY')">ERASER</button>
+
+      <span style="color:#2d0e20; margin: 0 4px;">|</span>
+
+      <button class="tool-btn" id="tb-AGENT_0" onclick="setSlot('AGENT_0')">RANGER</button>
+      <button class="tool-btn" id="tb-AGENT_1" onclick="setSlot('AGENT_1')">ALCHEMIST</button>
+      <button class="tool-btn" id="tb-AGENT_2" onclick="setSlot('AGENT_2')">VANGUARD</button>
+
+      <div class="speed-group">
+        <button id="spd-1" class="speed-btn active" onclick="setSimSpeed(1)">1X</button>
+        <button id="spd-2" class="speed-btn" onclick="setSimSpeed(2)">2X</button>
+        <button id="spd-4" class="speed-btn" onclick="setSimSpeed(4)">4X</button>
+        <button id="spd-10" class="speed-btn" onclick="setSimSpeed(10)">10X</button>
+      </div>
+    </div>
+
+    <div class="dock-right">
+      <button class="tool-btn" onclick="clearAll()">CLEAR</button>
+      <button id="btn-breach" class="btn-action" onclick="toggleRun()">BREACH</button>
+    </div>
+  </div>
+
+  <script>
+    const COLS = 32;
+    const ROWS = 18;
+
+    const availH = window.innerHeight - 80;
+    const TILE_H = Math.floor(availH / ROWS);
+    const TILE_W = Math.floor(TILE_H * 1.15);
+
+    function drawPixelArray(ctx, arr, pal, s = 1, ox = 0, oy = 0) {
+      for (let r = 0; r < arr.length; r++) {
+        for (let c = 0; c < arr[r].length; c++) {
+          const k = arr[r][c];
+          if (k && pal[k]) {
+            ctx.fillStyle = pal[k];
+            ctx.fillRect(ox + c * s, oy + r * s, s, s);
+          }
+        }
+      }
+    }
+
+    const riflePal = { 'B': '#090308', 'C': '#39d9b6', 'H': '#a4fff0', 'M': '#9b2d4b', 'W': '#e2edf0', 'G': '#f7a23b' };
+    const riflePixels = [
+      "................",
+      ".....GGGGGG.....",
+      "....BCCCCHBG....",
+      "...BMDCCCCCHBG..",
+      "..BMMDCCCCCCCBG.",
+      "..BMMDBBBBBBBBG.",
+      "...BMB...GGGG...",
+      "....B...........",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ];
+
+    const swordPal = { 'B': '#090308', 'P': '#d83a56', 'H': '#ffaec0', 'C': '#4ef2bb', 'G': '#f7a23b' };
+    const swordPixels = [
+      ".............H..",
+      "............HPB.",
+      "...........HPB..",
+      "..........HPB...",
+      ".........HPB....",
+      "........HPB.....",
+      ".......HPB......",
+      "......HPB.......",
+      "....GGHPBGG.....",
+      "...GGGGPGGGG....",
+      ".....BCCCB......",
+      "....GGGGGGGG....",
+      "................",
+      "................",
+      "................",
+      "................"
+    ];
+
+    const wallPal = { 'B': '#090308', 'M': '#5c1830', 'R': '#d83a56', 'H': '#ff7597' };
+    const wallPixels = [
+      "BBBBBBBBBBBBBBBB",
+      "BHHHHHHHHHHHHHHB",
+      "BHRRRRRRRRRRRRHB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BMMMMMMMMMMMMMMB",
+      "BBBBBBBBBBBBBBBB",
+      "................"
+    ];
+
+    const spikePal = { 'B': '#090308', 'D': '#2a1222', 'R': '#d83a56', 'H': '#ff7597', 'S': '#c0392b' };
+    const spikePixels = [
+      "................",
+      "....B......B....",
+      "...BSB....BSB...",
+      "..BSHRB..BSHRB..",
+      "...BDRB..BDRB...",
+      "....BDRBBDDB....",
+      "..BBBBRRRRBBBB..",
+      ".BRHHRRRRRRHHRB.",
+      ".BRHHRRRRRRHHRB.",
+      "..BBBBRRRRBBBB..",
+      "....BDRBBDDB....",
+      "...BDRB..BDRB...",
+      "..BSHRB..BSHRB..",
+      "...BSB....BSB...",
+      "................",
+      "................"
+    ];
+
+    const stunPal = { 'B': '#090308', 'C': '#39d9b6', 'H': '#a4fff0', 'D': '#13211f' };
+    const stunPixels = [
+      "................",
+      ".....CCCCCC.....",
+      "...CCHHHHHHCC...",
+      "..CHHDDCCDDCCHC.",
+      ".CHDDCCCCCCDDC.",
+      ".CHDDCCCCCCDDC.",
+      ".CHDDCCCCCCDDC.",
+      "..CHHDDCCDDCCHC.",
+      "...CCHHHHHHCC...",
+      ".....CCCCCC.....",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................",
+      "................"
+    ];
+
+    const astarPal = { 'B': '#090308', 'C': '#1b7280', 'L': '#34d5eb', 'R': '#d83a56', 'W': '#ffffff', 'S': '#123e45' };
+    const astarPixels = [
+      "......LLLL......",
+      ".....LCCCCL.....",
+      "....LCCCCCCL....",
+      "...BCCCCCCCCB...",
+      "...BCCWWCWCCB...",
+      "...BCCWWCWCCB...",
+      "...BCCCCCCCCB...",
+      "..BSSSSSSSSSSB..",
+      "..BSCCCCCCCCSB..",
+      "..BSCCCCCCCCSB..",
+      "...BSSSSSSSSB...",
+      "...BCCC..CCCB...",
+      "...BBB....BBB...",
+      "................",
+      "................",
+      "................"
+    ];
+
+    const saPal = { 'B': '#090308', 'O': '#b84e14', 'Y': '#f78a3b', 'V': '#ffcc00', 'W': '#ffffff', 'D': '#4a1b05' };
+    const saPixels = [
+      ".......YY.......",
+      "......YYYY......",
+      ".....YYYYYY.....",
+      "....DDDDDDDD....",
+      "..BDDDDDDDDDDB..",
+      "...BWWOWWWOWB...",
+      "...BWWOWWWOWB...",
+      "...BOOOOOOOOB...",
+      "..BOOOVVVVOOOB..",
+      "..BOOOVVVVOOOB..",
+      "...BOOOOOOOOB...",
+      "...BOOO..OOOB...",
+      "...BBB....BBB...",
+      "................",
+      "................",
+      "................"
+    ];
+
+    const gaPal = { 'B': '#090308', 'G': '#1b7038', 'L': '#33bf65', 'H': '#f5b041', 'W': '#ffffff', 'S': '#1f2b23' };
+    const gaPixels = [
+      ".HH..........HH.",
+      ".BHH........HHB.",
+      "..BGGGGGGGGGGB..",
+      "..BGGWWGGWWGGB..",
+      "..BGGWWGGWWGGB..",
+      "..BGGGGGGGGGGB..",
+      ".BSSSSSSSSSSSSB.",
+      ".BSGGGGGGGGGGSB.",
+      ".BSGGGGGGGGGGSB.",
+      "..BSSSSSSSSSSB..",
+      "..BSSSSSSSSSSB..",
+      "...BGGG..GGGB...",
+      "...BBB....BBB...",
+      "................",
+      "................",
+      "................"
+    ];
+
+    const jokerPal = {
+      'B': '#090308', 'G': '#2ecc71', 'W': '#ffffff', 'P': '#8e44ad', 'R': '#e74c3c', 'Y': '#f1c40f'
+    };
+    const jokerPixels = [
+      ".....GGGGGG.....",
+      "....GGGGGGGG....",
+      "...BWWWWWWWWB...",
+      "...BWWBWWBWWB...",
+      "...BWWWWWWWWB...",
+      "...BWRRRRRRWB...",
+      "....BWWWWWB.....",
+      "...BPPPPPPPPB...",
+      "..BPPPYYYYPPPB..",
+      "..BPPPPPPPPPPB..",
+      "..BPPPPPPPPPPB..",
+      "...BPPPPPPPPB...",
+      "...BPPP..PPPB...",
+      "...BBB....BBB...",
+      "................",
+      "................"
+    ];
+
+    function initCanvas(id, arr, pal) {
+      const c = document.getElementById(id);
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      drawPixelArray(ctx, arr, pal, 2, 0, 0);
+    }
+    initCanvas('vc-gun', riflePixels, riflePal);
+    initCanvas('vc-sword', swordPixels, swordPal);
+    initCanvas('vc-wall', wallPixels, wallPal);
+    initCanvas('vc-spike', spikePixels, spikePal);
+    initCanvas('vc-stun', stunPixels, stunPal);
+    initCanvas('vc-ag0', astarPixels, astarPal);
+    initCanvas('vc-ag1', saPixels, saPal);
+    initCanvas('vc-ag2', gaPixels, gaPal);
+
+    function initBiomeCanvas(id, colA, colB) {
+      const c = document.getElementById(id);
+      if (!c) return;
+      const ctx = c.getContext('2d');
+      ctx.fillStyle = colA;
+      ctx.beginPath();
+      ctx.ellipse(16, 16, 13, 10, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = colB;
+      ctx.beginPath();
+      ctx.ellipse(16, 16, 8, 6, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    initBiomeCanvas('vc-acid', '#0e2b18', '#2ecc71');
+    initBiomeCanvas('vc-magma', '#2e0c08', '#f39c12');
+
+    // =================================================================
+    // PIXI.JS APP & SCENE GRAPH
+    // =================================================================
+    const app = new PIXI.Application({
+      width: COLS * TILE_W,
+      height: ROWS * TILE_H + 16,
+      backgroundColor: 0x070206,
+      antialias: true,
+      resolution: window.devicePixelRatio || 1,
+      autoDensity: true
+    });
+    document.getElementById('pixi-mount').appendChild(app.view);
+    app.view.style.imageRendering = 'pixelated';
+
+    const floorLayer = new PIXI.Graphics();
+    const aoeGroundLayer = new PIXI.Graphics();
+    const aoeSkullLayer = new PIXI.Graphics();
+    const itemsLayer = new PIXI.Container();
+    const shadowsLayer = new PIXI.Graphics();
+    const wallsLayer = new PIXI.Graphics();
+    const jokerLayer = new PIXI.Container();
+    const agentsLayer = new PIXI.Container();
+    const fxLayer = new PIXI.Graphics();
+    const dialoguesLayer = new PIXI.Container();
+    const reticleLayer = new PIXI.Graphics();
+
+    shadowsLayer.blendMode = PIXI.BLEND_MODES.MULTIPLY;
+
+    app.stage.addChild(floorLayer);
+    app.stage.addChild(aoeGroundLayer);
+    app.stage.addChild(aoeSkullLayer);
+    app.stage.addChild(itemsLayer);
+    app.stage.addChild(shadowsLayer);
+    app.stage.addChild(wallsLayer);
+    app.stage.addChild(jokerLayer);
+    app.stage.addChild(agentsLayer);
+    app.stage.addChild(fxLayer);
+    app.stage.addChild(dialoguesLayer);
+    app.stage.addChild(reticleLayer);
+
+    function createPixiTex(art, pal, scale = 2.0) {
+      const cv = document.createElement('canvas');
+      cv.width = 16 * scale; cv.height = 16 * scale;
+      const ctx = cv.getContext('2d');
+      ctx.imageSmoothingEnabled = false;
+      drawPixelArray(ctx, art, pal, scale, 0, 0);
+      return PIXI.Texture.from(cv);
+    }
+
+    const tGun = createPixiTex(riflePixels, riflePal);
+    const tSword = createPixiTex(swordPixels, swordPal);
+    const tSpike = createPixiTex(spikePixels, spikePal);
+    const tStun = createPixiTex(stunPixels, stunPal);
+    const tAStar = createPixiTex(astarPixels, astarPal, 2.0);
+    const tSA = createPixiTex(saPixels, saPal, 2.0);
+    const tGA = createPixiTex(gaPixels, gaPal, 2.0);
+    const tJoker = createPixiTex(jokerPixels, jokerPal, 2.2);
+
+    // =================================================================
+    // 1. RE-INTRODUCED DULL TILED STONE GRID
+    // =================================================================
+    function renderSanctumFloor() {
+      floorLayer.clear();
+      const boardW = COLS * TILE_W;
+      const boardH = ROWS * TILE_H;
+
+      floorLayer.beginFill(0x0d080e);
+      floorLayer.drawRect(0, 0, boardW, boardH);
+      floorLayer.endFill();
+
+      for (let y = 0; y < ROWS; y++) {
+        for (let x = 0; x < COLS; x++) {
+          const px = x * TILE_W;
+          const py = y * TILE_H;
+          const hash = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
+          const fract = hash - Math.floor(hash);
+
+          let tileColor = 0x130b15;
+          if (fract < 0.3) tileColor = 0x100912;
+          else if (fract < 0.6) tileColor = 0x160d18;
+          else if (fract < 0.85) tileColor = 0x120a14;
+          else tileColor = 0x180f1a;
+
+          floorLayer.beginFill(tileColor, 1.0);
+          floorLayer.drawRect(px + 1, py + 1, TILE_W - 2, TILE_H - 2);
+          floorLayer.endFill();
+
+          floorLayer.lineStyle(1, 0x080308, 0.7);
+          floorLayer.drawRect(px, py, TILE_W, TILE_H);
+        }
+      }
+
+      const cx = boardW / 2;
+      const cy = boardH / 2;
+
+      floorLayer.lineStyle(1.2, 0x221323, 0.25);
+      floorLayer.drawCircle(cx, cy, 180);
+
+      floorLayer.lineStyle(1.0, 0x281628, 0.20);
+      floorLayer.drawCircle(cx, cy, 115);
+
+      floorLayer.lineStyle(0.8, 0x2e182e, 0.16);
+      floorLayer.drawCircle(cx, cy, 55);
+
+      floorLayer.lineStyle(0.8, 0x1c0e1d, 0.18);
+      floorLayer.moveTo(cx - 185, cy); floorLayer.lineTo(cx + 185, cy);
+      floorLayer.moveTo(cx, cy - 185); floorLayer.lineTo(cx, cy + 185);
+
+      for (let r = 56; r < boardW / 1.35; r += 28) {
+        const alpha = (r / (boardW / 1.35)) * 0.75;
+        floorLayer.lineStyle(28, 0x050104, alpha);
+        floorLayer.drawCircle(cx, cy, r);
+      }
+    }
+    renderSanctumFloor();
+
+    // =================================================================
+    // 2. FIXED MULTI-GRID POOLS
+    // =================================================================
+    function getFixedPoolPoints(b, scale = 1.0) {
+      const cx = b.x * TILE_W + (b.w * TILE_W) / 2;
+      const cy = b.y * TILE_H + (b.h * TILE_H) / 2;
+      const rx = ((b.w * TILE_W) / 2 - 2) * scale;
+      const ry = ((b.h * TILE_H) / 2 - 2) * scale;
+      const pts = [];
+      const n = 28;
+      for (let i = 0; i <= n; i++) {
+        const th = (i / n) * Math.PI * 2;
+        const bump = Math.sin(th * 3 + b.x * 2.1) * 3.5 + Math.cos(th * 4 + b.y * 3.2) * 2.2;
+        pts.push(cx + Math.cos(th) * (rx + bump), cy + Math.sin(th) * (ry + bump * 0.75));
+      }
+      return pts;
+    }
+
+    function renderMergedPools(biomes) {
+      aoeGroundLayer.clear();
+      if (!biomes) return;
+
+      biomes.forEach(b => {
+        const isAcid = (b.type === "acid");
+
+        const rimPts = getFixedPoolPoints(b, 1.06);
+        aoeGroundLayer.beginFill(0x080207, 0.98);
+        aoeGroundLayer.lineStyle(3, isAcid ? 0x122417 : 0x2e0c09, 0.95);
+        aoeGroundLayer.drawPolygon(rimPts);
+        aoeGroundLayer.endFill();
+
+        const bodyPts = getFixedPoolPoints(b, 0.95);
+        aoeGroundLayer.beginFill(isAcid ? 0x0a2012 : 0x260a06, 0.95);
+        aoeGroundLayer.lineStyle(2, isAcid ? 0x2ecc71 : 0xe74c3c, 0.9);
+        aoeGroundLayer.drawPolygon(bodyPts);
+        aoeGroundLayer.endFill();
+
+        const corePts = getFixedPoolPoints(b, 0.70);
+        aoeGroundLayer.beginFill(isAcid ? 0x27ae60 : 0xd35400, 0.75);
+        aoeGroundLayer.lineStyle(0);
+        aoeGroundLayer.drawPolygon(corePts);
+        aoeGroundLayer.endFill();
+      });
+    }
+
+    const poolParticles = Array.from({ length: 28 }, (_, i) => ({
+      bIdx: i % 2,
+      isSkull: (i % 3 === 0),
+      angle: Math.random() * Math.PI * 2,
+      distRatio: 0.15 + Math.random() * 0.65,
+      life: Math.random() * 70,
+      maxLife: 45 + Math.random() * 35,
+      driftSpeed: 0.2 + Math.random() * 0.25
+    }));
+
+    function drawPixelSkull(gfx, x, y, col, alpha) {
+      gfx.beginFill(col, alpha);
+      gfx.drawRect(x - 3, y - 4, 7, 5);
+      gfx.drawRect(x - 2, y + 1, 5, 3);
+      gfx.endFill();
+      gfx.beginFill(0x040102, alpha);
+      gfx.drawRect(x - 2, y - 2, 2, 2);
+      gfx.drawRect(x + 1, y - 2, 2, 2);
+      gfx.endFill();
+    }
+
+    function updatePoolParticles(biomes) {
+      aoeSkullLayer.clear();
+      if (!biomes || biomes.length === 0) return;
+
+      poolParticles.forEach(p => {
+        p.life += 1;
+        if (p.life > p.maxLife) {
+          p.life = 0;
+          p.angle = Math.random() * Math.PI * 2;
+          p.distRatio = 0.15 + Math.random() * 0.65;
+        }
+
+        const biome = biomes[p.bIdx % biomes.length];
+        const cx = biome.x * TILE_W + (biome.w * TILE_W) / 2;
+        const cy = biome.y * TILE_H + (biome.h * TILE_H) / 2;
+        const rx = ((biome.w * TILE_W) / 2 - 4) * p.distRatio;
+        const ry = ((biome.h * TILE_H) / 2 - 4) * p.distRatio;
+
+        const px = cx + Math.cos(p.angle) * rx + Math.sin(p.life * 0.1) * 3;
+        const py = cy + Math.sin(p.angle) * ry - (p.life * p.driftSpeed);
+        const alpha = Math.sin((p.life / p.maxLife) * Math.PI);
+
+        if (p.isSkull) {
+          const skullColor = (biome.type === "acid") ? 0x2ecc71 : 0xf39c12;
+          drawPixelSkull(aoeSkullLayer, px, py, skullColor, alpha * 0.9);
+        } else {
+          aoeSkullLayer.beginFill((biome.type === "acid") ? 0x2ecc71 : 0xf39c12, alpha * 0.85);
+          aoeSkullLayer.drawCircle(px, py, 2.5);
+          aoeSkullLayer.endFill();
+        }
+      });
+    }
+
+    // =================================================================
+    // 3. WALLS & LIGHT SHADOWS DRAWN OVER OBJECTS
+    // =================================================================
+    function renderSlimWallsAndShadows(state) {
+      wallsLayer.clear();
+      shadowsLayer.clear();
+
+      const SHADOW_DX = 9;
+      const SHADOW_DY = 7;
+
+      for (let y = 0; y < state.rows; y++) {
+        for (let x = 0; x < state.cols; x++) {
+          if (state.tiles[y][x] !== 'WALL') continue;
+
+          const px = x * TILE_W;
+          const py = y * TILE_H;
+
+          const n = (y > 0 && state.tiles[y - 1][x] === 'WALL');
+          const s = (y < state.rows - 1 && state.tiles[y + 1][x] === 'WALL');
+          const w = (x > 0 && state.tiles[y][x - 1] === 'WALL');
+          const e = (x < state.cols - 1 && state.tiles[y][x + 1] === 'WALL');
+
+          shadowsLayer.beginFill(0x030103, 0.28);
+          shadowsLayer.drawRect(px - 3, py - 3, TILE_W + 6, TILE_H + 6);
+          shadowsLayer.endFill();
+
+          shadowsLayer.beginFill(0x060205, 0.45);
+          if (!s) {
+            shadowsLayer.moveTo(px, py + TILE_H);
+            shadowsLayer.lineTo(px + TILE_W, py + TILE_H);
+            shadowsLayer.lineTo(px + TILE_W + SHADOW_DX, py + TILE_H + SHADOW_DY);
+            shadowsLayer.lineTo(px + SHADOW_DX, py + TILE_H + SHADOW_DY);
+            shadowsLayer.closePath();
+          }
+          if (!e) {
+            shadowsLayer.moveTo(px + TILE_W, py);
+            shadowsLayer.lineTo(px + TILE_W, py + TILE_H);
+            shadowsLayer.lineTo(px + TILE_W + SHADOW_DX, py + TILE_H + SHADOW_DY);
+            shadowsLayer.lineTo(px + TILE_W + SHADOW_DX, py + SHADOW_DY);
+            shadowsLayer.closePath();
+          }
+          shadowsLayer.endFill();
+
+          wallsLayer.beginFill(0x0e030b, 0.95);
+          wallsLayer.drawRect(px, py + TILE_H - 3, TILE_W, 3);
+          wallsLayer.endFill();
+
+          wallsLayer.beginFill(0x5c1830);
+          wallsLayer.drawRect(px, py - 4, TILE_W, TILE_H);
+          wallsLayer.endFill();
+
+          if (!e) {
+            wallsLayer.beginFill(0x2e0e18);
+            wallsLayer.drawRect(px + TILE_W - 4, py - 4, 4, TILE_H);
+            wallsLayer.endFill();
+          }
+
+          if (!w) {
+            wallsLayer.beginFill(0x7a223f);
+            wallsLayer.drawRect(px, py - 4, 3, TILE_H);
+            wallsLayer.endFill();
+          }
+
+          wallsLayer.beginFill(0xd83a56);
+          wallsLayer.drawRect(px, py - 8, TILE_W, 5);
+          wallsLayer.endFill();
+
+          wallsLayer.beginFill(0xff7597);
+          wallsLayer.drawRect(px + 1, py - 8, TILE_W - 2, 2);
+          wallsLayer.endFill();
+
+          if (n) {
+            wallsLayer.beginFill(0x5c1830);
+            wallsLayer.drawRect(px, py - 8, TILE_W, 8);
+            wallsLayer.endFill();
+          }
+        }
+      }
+    }
+
+    // =================================================================
+    // 4. 100% CLEAR, CRISP HD DIALOGUE BOXES
+    // =================================================================
+    const THEMES = {
+      ASTAR: { border: '#34d5eb', bg: 0x081318, text: '#ffffff', title: 'RANGER' },
+      SA: { border: '#f78a3b', bg: 0x1c0c06, text: '#ffffff', title: 'ALCHEMIST' },
+      GA: { border: '#33bf65', bg: 0x06180d, text: '#ffffff', title: 'VANGUARD' },
+      JOKER: { border: '#e056fd', bg: 0x18051e, text: '#fff0fa', title: 'JOKER' }
+    };
+
+    function renderCollisionFreeDialogues(dialogueRequests) {
+      dialoguesLayer.removeChildren();
+      if (!dialogueRequests || dialogueRequests.length === 0) return;
+
+      const boardW = COLS * TILE_W;
+      const boardH = ROWS * TILE_H;
+
+      const bubbles = dialogueRequests.map(req => {
+        const txt = new PIXI.Text(req.text, {
+          fontFamily: ['Rajdhani', 'Segoe UI', 'Consolas', 'monospace'],
+          fontSize: 14,
+          fontWeight: '700',
+          fill: req.theme.text,
+          align: 'center',
+          lineHeight: 18,
+          stroke: '#050105',
+          strokeThickness: 3,
+          dropShadow: true,
+          dropShadowColor: '#000000',
+          dropShadowDistance: 2,
+          dropShadowBlur: 2,
+          dropShadowAlpha: 0.95
+        });
+        txt.anchor.set(0.5, 0.5);
+
+        const padX = 24;
+        const padY = 14;
+        const bw = Math.max(95, txt.width + padX);
+        const bh = txt.height + padY;
+
+        let startX = req.px;
+        let startY = req.py - 44;
+
+        startX = Math.max(bw / 2 + 8, Math.min(boardW - bw / 2 - 8, startX));
+        startY = Math.max(bh / 2 + 8, Math.min(boardH - bh / 2 - 8, startY));
+
+        return {
+          ...req,
+          txt,
+          bw,
+          bh,
+          curX: startX,
+          curY: startY
+        };
+      });
+
+      for (let i = 0; i < bubbles.length; i++) {
+        for (let j = i + 1; j < bubbles.length; j++) {
+          const b1 = bubbles[i];
+          const b2 = bubbles[j];
+
+          const overlapX = Math.abs(b1.curX - b2.curX) < (b1.bw + b2.bw) / 2 + 12;
+          const overlapY = Math.abs(b1.curY - b2.curY) < (b1.bh + b2.bh) / 2 + 10;
+
+          if (overlapX && overlapY) {
+            if (b1.curY <= b2.curY) {
+              b1.curY = Math.max(b1.bh / 2 + 8, b2.curY - (b2.bh / 2 + b1.bh / 2 + 12));
+            } else {
+              b2.curY = Math.max(b2.bh / 2 + 8, b1.curY - (b1.bh / 2 + b2.bh / 2 + 12));
+            }
+          }
+        }
+      }
+
+      bubbles.forEach(b => {
+        const g = new PIXI.Container();
+        const bg = new PIXI.Graphics();
+
+        bg.beginFill(b.theme.bg, 0.98);
+        bg.lineStyle(2, b.theme.border);
+        bg.drawRoundedRect(-b.bw / 2, -b.bh / 2, b.bw, b.bh, 5);
+
+        if (b.theme === THEMES.JOKER) {
+          bg.lineStyle(1.2, 0xffd700, 0.85);
+          bg.drawRoundedRect(-b.bw / 2 + 2, -b.bh / 2 + 2, b.bw - 4, b.bh - 4, 3);
+        }
+
+        bg.lineStyle(0);
+        bg.beginFill(PIXI.utils.string2hex(b.theme.border), 1);
+        bg.drawRoundedRect(-b.bw / 2 + 2, -b.bh / 2 + 1, b.bw - 4, 2.5, 1);
+        bg.endFill();
+
+        bg.beginFill(b.theme.bg, 0.98);
+        bg.lineStyle(2, b.theme.border);
+        bg.moveTo(-4, b.bh / 2);
+        bg.lineTo(0, b.bh / 2 + 7);
+        bg.lineTo(4, b.bh / 2);
+        bg.endFill();
+
+        g.position.set(b.curX, b.curY);
+        g.addChild(bg);
+        g.addChild(b.txt);
+        dialoguesLayer.addChild(g);
+      });
+    }
+
+    // =================================================================
+    // 5. CONTROLS & INTERACTION
+    // =================================================================
+    let currentTool = "GUN";
+    let gameState = null;
+    let hoverTile = { x: -1, y: -1 };
+
+    function toggleVaultDrawer() {
+      document.getElementById('vault-drawer').classList.toggle('open');
+    }
+
+    function setSlot(tool) {
+      currentTool = tool;
+      document.querySelectorAll('.tool-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.vault-card').forEach(b => b.classList.remove('active'));
+      const activeBtn = document.getElementById(`tb-${tool}`);
+      if (activeBtn) activeBtn.classList.add('active');
+    }
+
+    function redesignMap() {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "randomize_map" }));
+      }
+    }
+
+    function setSimSpeed(spd) {
+      document.querySelectorAll('.speed-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(`spd-${spd}`).classList.add('active');
+      ws.send(JSON.stringify({ type: "set_speed", speed: spd }));
+    }
+
+    function clearAll() {
+      if (gameState && gameState.editor_mode) {
+        ws.send(JSON.stringify({ type: "clear_all" }));
+      }
+    }
+
+    function toggleRun() {
+      if (!gameState) return;
+      if (gameState.editor_mode) {
+        ws.send(JSON.stringify({ type: "start" }));
+      } else if (gameState.winner) {
+        ws.send(JSON.stringify({ type: "reset" }));
+      } else {
+        ws.send(JSON.stringify({ type: "edit_mode" }));
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      const k = { '1': 'GUN', '2': 'SWORD', '3': 'WALL', '4': 'TRAP_SPIKE', '5': 'TRAP_STUN', '6': 'AOE_ACID', '7': 'AOE_MAGMA' };
+      if (k[e.key]) setSlot(k[e.key]);
+      if (e.key === 'Enter') toggleRun();
+      if (e.key === 'r' || e.key === 'R') redesignMap();
+    });
+
+    app.view.addEventListener('mousemove', (e) => {
+      const r = app.view.getBoundingClientRect();
+      hoverTile.x = Math.floor((e.clientX - r.left) / TILE_W);
+      hoverTile.y = Math.floor((e.clientY - r.top) / TILE_H);
+    });
+
+    app.view.addEventListener('mouseleave', () => {
+      hoverTile.x = -1;
+      hoverTile.y = -1;
+      reticleLayer.clear();
+    });
+
+    app.view.addEventListener('click', () => {
+      if (!gameState || !gameState.editor_mode) return;
+      if (hoverTile.x < 0 || hoverTile.x >= COLS || hoverTile.y < 0 || hoverTile.y >= ROWS) return;
+
+      if (currentTool === 'EMPTY') {
+        const targetAgent = gameState.agents.find(a => a.alive && a.x === hoverTile.x && a.y === hoverTile.y);
+        if (targetAgent) {
+          ws.send(JSON.stringify({ type: "remove_agent", agent_id: targetAgent.id }));
+          return;
+        }
+      }
+
+      if (currentTool.startsWith('AGENT_')) {
+        const id = parseInt(currentTool.split('_')[1]);
+        ws.send(JSON.stringify({ type: "move_agent", agent_id: id, x: hoverTile.x, y: hoverTile.y }));
+      } else {
+        ws.send(JSON.stringify({ type: "set_tile", x: hoverTile.x, y: hoverTile.y, tile: currentTool }));
+      }
+    });
+
+    function drawReticle() {
+      reticleLayer.clear();
+      if (!gameState || !gameState.editor_mode) return;
+      if (hoverTile.x < 0 || hoverTile.x >= COLS || hoverTile.y < 0 || hoverTile.y >= ROWS) return;
+
+      const px = hoverTile.x * TILE_W;
+      const py = hoverTile.y * TILE_H;
+      const cur = gameState.tiles[hoverTile.y][hoverTile.x];
+      const isOccupiedByAgent = gameState.agents.some(a => a.alive && a.x === hoverTile.x && a.y === hoverTile.y);
+      const isOccupiedByJoker = (gameState.joker && gameState.joker.alive && gameState.joker.x === hoverTile.x && gameState.joker.y === hoverTile.y);
+
+      let isValid = (cur === 'EMPTY' && !isOccupiedByAgent && !isOccupiedByJoker) || currentTool === 'EMPTY';
+
+      if (currentTool === 'AOE_ACID' || currentTool === 'AOE_MAGMA') {
+        for (let dy = 0; dy < 2; dy++) {
+          for (let dx = 0; dx < 3; dx++) {
+            const tx = hoverTile.x + dx;
+            const ty = hoverTile.y + dy;
+            if (tx >= COLS || ty >= ROWS || gameState.tiles[ty][tx] !== 'EMPTY') {
+              isValid = false;
+            }
+          }
+        }
+        const col = isValid ? 0x4ef2bb : 0xd83a56;
+        reticleLayer.lineStyle(2, col, 0.9);
+        reticleLayer.beginFill(col, 0.16);
+        reticleLayer.drawEllipse(px + (TILE_W * 3) / 2, py + (TILE_H * 2) / 2, (TILE_W * 3) / 2 - 2, (TILE_H * 2) / 2 - 2);
+        reticleLayer.endFill();
+        return;
+      }
+
+      const col = isValid ? 0x4ef2bb : 0xd83a56;
+      reticleLayer.lineStyle(2, col, 0.9);
+      reticleLayer.beginFill(col, 0.16);
+      reticleLayer.drawRect(px + 1, py + 1, TILE_W - 2, TILE_H - 2);
+      reticleLayer.endFill();
+    }
+
+    // =================================================================
+    // 6. WEBSOCKET & CINEMATIC DRAMA KILLCAM (SLOWED DOWN TIMING)
+    // =================================================================
+    const ws = new WebSocket(`ws://${location.host}/ws`);
+
+    ws.onmessage = (e) => {
+      gameState = JSON.parse(e.data);
+      renderUI(gameState);
+      renderWorld(gameState);
+      handleCinematicKillcam(gameState);
+    };
+
+    let killcamTimeout = null;
+
+    function handleCinematicKillcam(state) {
+      const mount = document.getElementById('pixi-mount');
+      const banner = document.getElementById('cinematic-bars');
+      const title = document.getElementById('cinematic-title');
+      const subtitle = document.getElementById('cinematic-subtitle');
+
+      const combatEvent = state.events && state.events.find(ev =>
+        ev.type === 'shoot' || ev.type === 'sword_stab' || ev.type === 'joker_killed'
+      );
+
+      if (combatEvent) {
+        if (killcamTimeout) clearTimeout(killcamTimeout);
+
+        const midX = ((combatEvent.shooter.x + combatEvent.victim.x) / 2) * TILE_W + TILE_W / 2;
+        const midY = ((combatEvent.shooter.y + combatEvent.victim.y) / 2) * TILE_H + TILE_H / 2;
+
+        mount.style.transformOrigin = `${midX}px ${midY}px`;
+        mount.style.transform = 'scale(2.2)'; // Deeper cinematic zoom
+
+        if (combatEvent.type === 'joker_killed') {
+          title.innerText = 'ASSASSINATION';
+          title.style.color = '#39d9b6';
+          subtitle.innerText = 'JOKER EXECUTED AT POINT-BLANK RANGE';
+        } else if (combatEvent.fatal) {
+          title.innerText = 'FATAL EXECUTION';
+          title.style.color = '#ff597a';
+          subtitle.innerText = combatEvent.weapon === 'GUN' ? 'POINT-BLANK PLASMA TERMINATION' : 'ADJACENT DEATHBLOW BLADE STRIKE';
+        } else {
+          title.innerText = 'CRITICAL FLESH WOUND';
+          title.style.color = '#f7a23b';
+          subtitle.innerText = 'FIRST STAB! OPERATIVE SURVIVES & ADAPTS';
+        }
+
+        banner.classList.add('active');
+
+        // Slower hold time (3.5 seconds)
+        killcamTimeout = setTimeout(() => {
+          mount.style.transform = 'scale(1.0)';
+          banner.classList.remove('active');
+        }, 3500);
+      }
+    }
+
+    function renderUI(state) {
+      document.getElementById('round-stat').innerText =
+        `CYCLE ${state.round_number} | TURN ${state.turn_count} | ${state.combat_active ? 'STAND-OFF ACTIVE' : 'WEAPON HUNT'}`;
+
+      const btn = document.getElementById('btn-breach');
+      if (state.editor_mode) {
+        btn.innerText = "BREACH";
+        btn.className = "btn-action";
+      } else if (state.winner) {
+        btn.innerText = "NEXT CYCLE";
+        btn.className = "btn-action pause";
+      } else {
+        btn.innerText = "HALT / EDIT";
+        btn.className = "btn-action pause";
+      }
+
+      if (state.log.length > 0) {
+        document.getElementById('chronicle-pill').innerText = `» ${state.log[state.log.length - 1]}`;
+      }
+
+      const dock = document.getElementById('badges-dock');
+      dock.innerHTML = '';
+      const colors = { ASTAR: '#34d5eb', SA: '#f78a3b', GA: '#33bf65' };
+
+      state.agents.forEach(a => {
+        const d = document.createElement('div');
+        d.className = `agent-pill ${a.is_wounded ? 'wounded' : ''}`;
+        d.style.borderColor = colors[a.algo_type];
+
+        const combatHearts = a.alive ? '♥ '.repeat(a.combat_hp) + '♡ '.repeat(Math.max(0, 2 - a.combat_hp)) : 'FALLEN';
+        const trapShields = a.alive ? '🛡️'.repeat(a.trap_lives) : '';
+        const weaponBadge = a.armed ? (a.weapon_type === 'GUN' ? '⚡ RIFLE' : '⚔️ SWORD') : (a.alive ? 'UNARMED' : 'K.I.A.');
+
+        let statusBadge = '';
+        if (a.is_wounded) {
+          statusBadge = `<span class="h-status" style="background:#ff597a; color:#fff;">WOUNDED (1 HP)</span>`;
+        } else if (a.stunned) {
+          statusBadge = `<span class="h-status" style="background:#3498db; color:#fff;">STUNNED</span>`;
+        }
+
+        d.innerHTML = `
+          <span style="color:${colors[a.algo_type]}; font-weight:800;">${a.name}</span>
+          <span class="h-hearts">${combatHearts}</span>
+          <span class="h-traps">${trapShields}</span>
+          <span class="h-ammo">${weaponBadge}</span>
+          ${statusBadge}
+        `;
+        dock.appendChild(d);
+      });
+    }
+
+    let animTick = 0;
+
+    function renderWorld(state) {
+      itemsLayer.removeChildren();
+      jokerLayer.removeChildren();
+      agentsLayer.removeChildren();
+
+      renderSanctumFloor();
+
+      if (state.biomes) {
+        renderMergedPools(state.biomes);
+      }
+
+      for (let y = 0; y < state.rows; y++) {
+        for (let x = 0; x < state.cols; x++) {
+          const t = state.tiles[y][x];
+          const px = x * TILE_W;
+          const py = y * TILE_H;
+
+          const floatBob = Math.sin(animTick * 0.12) * 2.5;
+
+          if (t === 'GUN' || t === 'SWORD' || t === 'TRAP_SPIKE' || t === 'TRAP_STUN') {
+            const groundShadow = new PIXI.Graphics();
+            groundShadow.beginFill(0x040102, 0.70);
+            groundShadow.drawEllipse(px + TILE_W / 2, py + TILE_H - 4, 9, 3.5);
+            groundShadow.endFill();
+            itemsLayer.addChild(groundShadow);
+          }
+
+          if (t === 'GUN') {
+            const aura = new PIXI.Graphics();
+            aura.beginFill(0x39d9b6, 0.35 + Math.sin(animTick * 0.15) * 0.15);
+            aura.drawEllipse(px + TILE_W / 2, py + TILE_H / 2 + 3, 11, 4.5);
+            aura.endFill();
+            itemsLayer.addChild(aura);
+
+            const spr = new PIXI.Sprite(tGun);
+            spr.position.set(px + 2, py + floatBob);
+            itemsLayer.addChild(spr);
+          } else if (t === 'SWORD') {
+            const aura = new PIXI.Graphics();
+            aura.beginFill(0xf7a23b, 0.35 + Math.sin(animTick * 0.15) * 0.15);
+            aura.drawEllipse(px + TILE_W / 2, py + TILE_H / 2 + 3, 11, 4.5);
+            aura.endFill();
+            itemsLayer.addChild(aura);
+
+            const spr = new PIXI.Sprite(tSword);
+            spr.position.set(px + 2, py + floatBob);
+            itemsLayer.addChild(spr);
+          } else if (t === 'TRAP_SPIKE') {
+            const spr = new PIXI.Sprite(tSpike);
+            spr.position.set(px + 2, py + 2);
+            itemsLayer.addChild(spr);
+          } else if (t === 'TRAP_STUN') {
+            const spr = new PIXI.Sprite(tStun);
+            spr.position.set(px + 2, py + floatBob * 0.5);
+            itemsLayer.addChild(spr);
+          }
+        }
+      }
+
+      renderSlimWallsAndShadows(state);
+
+      if (state.joker && state.joker.alive) {
+        const jpx = state.joker.x * TILE_W;
+        const jpy = state.joker.y * TILE_H;
+
+        const jShadow = new PIXI.Graphics();
+        jShadow.beginFill(0x030102, 0.88);
+        jShadow.drawEllipse(jpx + TILE_W / 2, jpy + TILE_H - 2, 13, 5);
+        jShadow.endFill();
+        jokerLayer.addChild(jShadow);
+
+        const jSpr = new PIXI.Sprite(tJoker);
+        jSpr.anchor.set(0.5, 0.95);
+        jSpr.position.set(jpx + TILE_W / 2, jpy + TILE_H);
+        if (state.joker.facing === 'left') jSpr.scale.x = -1;
+        jokerLayer.addChild(jSpr);
+      }
+
+      const opTex = { ASTAR: tAStar, SA: tSA, GA: tGA };
+      const dialogueRequests = [];
+      const facingOffsets = {
+        up: [0, -7],
+        down: [0, 5],
+        left: [-7, 0],
+        right: [7, 0]
+      };
+
+      state.agents.forEach(a => {
+        if (!a.alive) return;
+        const px = a.x * TILE_W;
+        const py = a.y * TILE_H;
+
+        const shadow = new PIXI.Graphics();
+        shadow.beginFill(0x030102, 0.88);
+        shadow.drawEllipse(px + TILE_W / 2, py + TILE_H - 2, 12, 5);
+        shadow.endFill();
+        agentsLayer.addChild(shadow);
+
+        const chev = new PIXI.Graphics();
+        const fOffset = facingOffsets[a.facing] || [0, 5];
+        chev.lineStyle(1.5, PIXI.utils.string2hex(THEMES[a.algo_type].border), 0.85);
+        chev.moveTo(px + TILE_W / 2 + fOffset[0], py + TILE_H - 2 + fOffset[1]);
+        chev.lineTo(px + TILE_W / 2, py + TILE_H - 2);
+        agentsLayer.addChild(chev);
+
+        const spr = new PIXI.Sprite(opTex[a.algo_type]);
+        spr.anchor.set(0.5, 0.95);
+        spr.position.set(px + TILE_W / 2, py + TILE_H);
+        agentsLayer.addChild(spr);
+
+        if (a.is_wounded) {
+          const blood = new PIXI.Graphics();
+          blood.beginFill(0xff3b30, 0.85);
+          blood.drawCircle(px + TILE_W / 2 + 5, py + TILE_H - 4, 1.8);
+          blood.endFill();
+          agentsLayer.addChild(blood);
+        }
+
+        if (a.armed) {
+          const wTex = a.weapon_type === 'GUN' ? tGun : tSword;
+          const wSpr = new PIXI.Sprite(wTex);
+          wSpr.scale.set(0.65, 0.65);
+          wSpr.anchor.set(0.5, 0.5);
+
+          const bob = Math.sin(animTick * 0.18) * 1.5;
+
+          if (a.facing === 'right') {
+            wSpr.position.set(px + TILE_W / 2 + 10, py + TILE_H - 12 + bob);
+          } else if (a.facing === 'left') {
+            wSpr.scale.x = -0.65;
+            wSpr.position.set(px + TILE_W / 2 - 10, py + TILE_H - 12 + bob);
+          } else if (a.facing === 'up') {
+            wSpr.rotation = -Math.PI / 2;
+            wSpr.position.set(px + TILE_W / 2, py + TILE_H - 18 + bob);
+          } else {
+            wSpr.rotation = Math.PI / 2;
+            wSpr.position.set(px + TILE_W / 2, py + TILE_H - 6 + bob);
+          }
+
+          agentsLayer.addChild(wSpr);
+        }
+
+        if (state.thoughts && state.thoughts[a.algo_type]) {
+          dialogueRequests.push({
+            text: state.thoughts[a.algo_type],
+            px: px + TILE_W / 2,
+            py: py,
+            theme: THEMES[a.algo_type]
+          });
+        }
+      });
+
+      if (state.joker && state.joker.alive && state.joker.dialogue) {
+        dialogueRequests.push({
+          text: state.joker.dialogue,
+          px: state.joker.x * TILE_W + TILE_W / 2,
+          py: state.joker.y * TILE_H,
+          theme: THEMES.JOKER
+        });
+      }
+
+      renderCollisionFreeDialogues(dialogueRequests);
+
+      if (state.events) {
+        state.events.forEach(ev => {
+          if (ev.type === 'shoot' || ev.type === 'joker_killed') {
+            const bolt = new PIXI.Graphics();
+            bolt.lineStyle(3.5, ev.type === 'joker_killed' ? 0x00ffff : 0x39d9b6, 1);
+            bolt.moveTo(ev.shooter.x * TILE_W + TILE_W / 2, ev.shooter.y * TILE_H + TILE_H / 2);
+            bolt.lineTo(ev.victim.x * TILE_W + TILE_W / 2, ev.victim.y * TILE_H + TILE_H / 2);
+            fxLayer.addChild(bolt);
+
+            const spark = new PIXI.Graphics();
+            spark.beginFill(0xffea75);
+            spark.drawCircle(ev.victim.x * TILE_W + TILE_W / 2, ev.victim.y * TILE_H + TILE_H / 2, 14);
+            spark.endFill();
+            fxLayer.addChild(spark);
+
+            setTimeout(() => {
+              fxLayer.removeChild(bolt);
+              fxLayer.removeChild(spark);
+            }, 600);
+          } else if (ev.type === 'sword_stab') {
+            const slash = new PIXI.Graphics();
+            const vx = ev.victim.x * TILE_W + TILE_W / 2;
+            const vy = ev.victim.y * TILE_H + TILE_H / 2;
+            const sx = ev.shooter.x * TILE_W + TILE_W / 2;
+            const sy = ev.shooter.y * TILE_H + TILE_H / 2;
+
+            const angle = Math.atan2(vy - sy, vx - sx);
+
+            slash.lineStyle(4, 0xff2a45, 1);
+            slash.arc(vx, vy, 18, angle - Math.PI / 2, angle + Math.PI / 2);
+
+            slash.lineStyle(2, 0xffffff, 0.95);
+            slash.arc(vx, vy, 17, angle - Math.PI / 3, angle + Math.PI / 3);
+
+            for (let d = 0; d < (ev.fatal ? 14 : 7); d++) {
+              const spDist = 8 + Math.random() * 22;
+              const spAng = angle + (Math.random() - 0.5) * 1.2;
+              slash.beginFill(0xd80032, 0.9);
+              slash.drawCircle(vx + Math.cos(spAng) * spDist, vy + Math.sin(spAng) * spDist, 2.2);
+              slash.endFill();
+            }
+
+            slash.lineStyle(1.8, 0xffd700, 0.8);
+            slash.drawCircle(vx, vy, 12);
+
+            fxLayer.addChild(slash);
+
+            setTimeout(() => {
+              fxLayer.removeChild(slash);
+            }, 800);
+          }
+        });
+      }
+    }
+
+    app.ticker.add(() => {
+      animTick += 1;
+      if (gameState && gameState.biomes) {
+        updatePoolParticles(gameState.biomes);
+      }
+      drawReticle();
+    });
+  </script>
+</body>
+</html>
