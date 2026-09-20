@@ -1,0 +1,27 @@
+    def get_flank_tiles(self, target_pos, target_facing, grid):
+        """Calculates rear, left, and right ambush tiles around the target."""
+        rear_dirs = {
+            "up": (0, 1), "down": (0, -1), "left": (1, 0), "right": (-1, 0)
+        }
+        flank_dirs = {
+            "up": [(1, 0), (-1, 0)], "down": [(1, 0), (-1, 0)],
+            "left": [(0, 1), (0, -1)], "right": [(0, 1), (0, -1)]
+        }
+
+        rdx, rdy = rear_dirs.get(target_facing, (0, 1))
+        rear_pos = (target_pos[0] + rdx, target_pos[1] + rdy)
+        candidates = [rear_pos]
+
+        for fdx, fdy in flank_dirs.get(target_facing, []):
+            candidates.append((target_pos[0] + fdx, target_pos[1] + fdy))
+
+        for _, (dx, dy) in DIRS.items():
+            candidates.append((target_pos[0] + dx, target_pos[1] + dy))
+
+        valid = [p for p in candidates if grid.in_bounds(p[0], p[1]) and grid.is_walkable(p[0], p[1])]
+        return valid if valid else [target_pos]
+
+    def is_ambush_angle(self, hunter_facing, target_facing):
+        """Ambush succeeds from behind or flank, never head-on."""
+        opp_face = {"up": "down", "down": "up", "left": "right", "right": "left"}
+        return hunter_facing != opp_face.get(target_facing)
