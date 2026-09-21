@@ -6,7 +6,7 @@ from sightline_core import (
     Brain, DIRS, WALL, SMOKE, GUN, SWORD, TRAP_SPIKE, TRAP_STUN, AOE_ACID, AOE_MAGMA, EMPTY
 )
 
-def ELRIC (a, b):
+def manhatten (a, b):
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 
@@ -35,7 +35,7 @@ class SABrain(Brain):
         if joker_alive and joker_pos:
             if neighbor == joker_pos and not is_goal_tile:
                 cost += 35
-            elif ELRIC(neighbor, joker_pos) == 1 and not is_goal_tile:
+            elif manhatten(neighbor, joker_pos) == 1 and not is_goal_tile:
                 cost += 6
         return cost
 
@@ -46,7 +46,7 @@ class SABrain(Brain):
             tile = grid.tiles[step[1]][step[0]]
             cost += self._tile_step_cost(tile, step == goal, joker_alive, joker_pos, step)
             cur = step
-        cost += ELRIC(cur, goal) * 3  # heavy penalty for not actually arriving
+        cost += manhatten(cur, goal) * 3  # heavy penalty for not actually arriving
         return cost
 
     def _walkable_neighbors(self, pos, grid):
@@ -72,7 +72,7 @@ class SABrain(Brain):
             options = self._walkable_neighbors(cur, grid)
             if not options:
                 break
-            options.sort(key=lambda p: ELRIC(p, goal))
+            options.sort(key=lambda p: manhatten(p, goal))
             if random.random() < greedy_bias:
                 nxt = options[0]
             else:
