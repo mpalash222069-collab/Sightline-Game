@@ -76,7 +76,7 @@ as for changing names of file and constant updating we will upload this part at 
 | Member | Branch | Owns | Status |
 |---|---|---|---|
 | Abdullah Zabir Elhan, Syed Tazammul Haque Tazeem| `main` (shared) | Framework — `sightline_core.py`, `sightline_engine.py` | 
-| Md. Rayhan Islam Showrav | `main` (shared) | Frontend — `sightline_frontend.py`, map editor, visual theme | 
+| Md. Rayhan Islam Showrav | `main` (shared) | Frontend — `index.html` using PIXI js, map editor, visual theme, UI | 
 | Abdullah Zabir Elhan | SA Dev 1
 | Syed Tazammul Haque Tazeem  | SA Dev 2  
 | Md. Rayhan Islam Showrav | `astar_0112230810` | A\* Developer — pathfinding, replanning, metrics | 
