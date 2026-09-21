@@ -75,10 +75,10 @@ as for changing names of file and constant updating we will upload this part at 
 
 | Member | Branch | Owns | Status |
 |---|---|---|---|
-| Abdullah Zabir Elhan, Syed Tazammul Haque Tazeem| `main` (shared) | Framework — `sightline_core.py`, `sightline_engine.py` | 
+| Abdullah Zabir Elhan, Syed Tazammul Haque Tazeem| `main` (shared) | Framework — `sightline_core.py`,  | 
 | Md. Rayhan Islam Showrav | `main` (shared) | Frontend — `index.html` using PIXI js, map editor, visual theme, UI | 
-| Abdullah Zabir Elhan | SA Dev 1
-| Syed Tazammul Haque Tazeem  | SA Dev 2  
+| Abdullah Zabir Elhan | `SA1-0112230088` | SA Dev 1
+| Syed Tazammul Haque Tazeem  | `SA2-0112230061` | SA Dev 2  
 | Md. Rayhan Islam Showrav | `astar_0112230810` | A\* Developer — pathfinding, replanning, metrics | 
 | Ziaul Islam Palash | `GA-1<011222069>` | GA Dev 1 — genome encoding, fitness function |
 | Sadia Islam Prova  | `ga_training_<id>` | GA Dev 2 — selection, crossover, mutation, training loop |
