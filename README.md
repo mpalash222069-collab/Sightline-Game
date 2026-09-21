@@ -91,7 +91,7 @@ ga_training.py             GA — selection, crossover, mutation, self-play trai
 | [Name] | `main` (shared) | Frontend — `sightline_frontend.py`, map editor, visual theme | ✅ Built & tested |
 | [Name] | `sa_costfunction_<id>` | SA Dev 1 — cost function (distance + exposure risk) | ✅ Built & tested |
 | [Name] | `sa_annealing_<id>` | SA Dev 2 — annealing search + live integration | ✅ Built & tested |
-| Md. Rayhan Islam Showrav | `astar_<id>` | A\* Developer — pathfinding, replanning, metrics | ⏳ In progress |
+| Md. Rayhan Islam Showrav | `astar_0112230810` | A\* Developer — pathfinding, replanning, metrics | ⏳ In progress |
 | [Name] | `ga_encoding_<id>` | GA Dev 1 — genome encoding, fitness function | ⏳ In progress |
 | [Name] | `ga_training_<id>` | GA Dev 2 — selection, crossover, mutation, training loop | ⏳ In progress |
 
