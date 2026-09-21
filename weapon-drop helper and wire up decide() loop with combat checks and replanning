@@ -1,0 +1,91 @@
+    def find_empty_adjacent_tile(self, agent, grid):
+        opp_dirs = [DIRS["down"], DIRS["up"], DIRS["left"], DIRS["right"]]
+        for dx, dy in opp_dirs:
+            tx, ty = agent.x + dx, agent.y + dy
+            if grid.in_bounds(tx, ty) and grid.tiles[ty][tx] == EMPTY:
+                return (tx, ty)
+        return None
+
+    def decide(self, agent, grid, visible_agents, all_agents=None, joker=None):
+        if all_agents is None:
+            all_agents = [agent] + (visible_agents or [])
+
+        joker_alive = bool(joker and getattr(joker, 'alive', False))
+        joker_pos = (joker.x, joker.y) if joker_alive else None
+        joker_facing = getattr(joker, 'facing', 'down') if joker_alive else 'down'
+
+        pos = (agent.x, agent.y)
+        sorted_visible = sorted(visible_agents or [], key=lambda v: manhattan(pos, (v.x, v.y)))
+
+        dist_to_joker = manhattan(pos, joker_pos) if (joker_alive and joker_pos) else 999
+        closest_rival = sorted_visible[0] if sorted_visible else None
+        closest_rival_dist = manhattan(pos, (closest_rival.x, closest_rival.y)) if closest_rival else 999
+
+        if agent.armed and joker_alive and joker_pos and dist_to_joker <= 2:
+            if dist_to_joker <= closest_rival_dist:
+                if self.is_ambush_angle(agent.facing, joker_facing):
+                    self.dialogue = f"Joker in range ({dist_to_joker} grids)! Striking rear!"
+                    return "shoot"
+
+        if closest_rival and agent.armed and agent.ammo > 0:
+            if closest_rival_dist == 1:
+                if self.is_ambush_angle(agent.facing, closest_rival.facing):
+                    self.dialogue = f"Adjacent backstab executed on {closest_rival.algo_type}!"
+                    return "shoot"
+
+        if agent.armed and joker_alive and joker_pos and dist_to_joker <= 2:
+            if self.is_ambush_angle(agent.facing, joker_facing):
+                self.dialogue = f"Joker in range ({dist_to_joker} grids)! Striking rear!"
+                return "shoot"
+
+        action_type, target_pos = self.evaluate_optimal_target(agent, grid, all_agents, joker)
+
+        if action_type == "UPGRADE_GUN":
+            drop_pos = self.find_empty_adjacent_tile(agent, grid)
+            if drop_pos:
+                grid.set_tile(drop_pos[0], drop_pos[1], SWORD)
+                agent.armed = False
+                agent.weapon_type = None
+                self.current_path = []
+                self.last_target = None
+            else:
+                action_type, target_pos = ("HUNT_AGENT", target_pos)
+
+        if not target_pos:
+            target_pos = (grid.cols // 2, grid.rows // 2)
+
+        replan = False
+        if not self.current_path:
+            replan = True
+        elif self.last_target is None or manhattan(target_pos, self.last_target) > 1:
+            replan = True
+        elif not grid.is_walkable(self.current_path[0][0], self.current_path[0][1]):
+            replan = True
+        elif joker_alive and joker_pos and self.current_path[0] == joker_pos:
+            replan = True
+
+        if replan:
+            self.last_target = target_pos
+            self.current_path = self.simulated_annealing_search(pos, target_pos, grid, joker_pos, joker_alive)
+
+        if self.current_path:
+            next_step = self.current_path.pop(0)
+            for act, (dx, dy) in DIRS.items():
+                if (agent.x + dx, agent.y + dy) == next_step:
+                    return act
+
+        best_act = None
+        best_dist = 999
+        for act, (dx, dy) in DIRS.items():
+            nx, ny = agent.x + dx, agent.y + dy
+            if grid.is_walkable(nx, ny):
+                if not (joker_alive and joker_pos and (nx, ny) == joker_pos):
+                    d = manhattan((nx, ny), target_pos)
+                    if d < best_dist:
+                        best_dist = d
+                        best_act = act
+
+        if best_act:
+            return best_act
+
+        return "stay"
