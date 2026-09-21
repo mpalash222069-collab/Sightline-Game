@@ -1,1 +1,1 @@
-# Goal-finding-game
+# Sightline-game
