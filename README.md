@@ -92,7 +92,7 @@ ga_training.py             GA — selection, crossover, mutation, self-play trai
 | [Name] | `sa_costfunction_<id>` | SA Dev 1 — cost function (distance + exposure risk) | ✅ Built & tested |
 | Syed Tazammul Haque Tazeem - 0112230061 | `sa_annealing_<id>` | SA Dev 2 — annealing search + live integration | ✅ Built & tested |
 | Md. Rayhan Islam Showrav | `astar_0112230810` | A\* Developer — pathfinding, replanning, metrics | ⏳ In progress |
-| [Name] | `ga_encoding_<id>` | GA Dev 1 — genome encoding, fitness function | ⏳ In progress |
+| Ziaul Islam Palash | `GA-1<011222069>` | GA Dev 1 — genome encoding, fitness function | ⏳ In progress |
 | [Name] | `ga_training_<id>` | GA Dev 2 — selection, crossover, mutation, training loop | ⏳ In progress |
 
 *(Replace `[Name]` with actual team member names as branches land.)*
