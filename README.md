@@ -67,35 +67,21 @@ Every rubric evaluation criterion maps to a concrete, logged metric:
 ## Repository Structure
 
 ```
-sightline_core.py        Shared contract — Grid, Agent, Brain interface.
-                          Every algorithm and the frontend import from this file.
-sightline_engine.py       Game engine — Phase 1/2 rules, combat, lives, ammo, traps.
-sightline_frontend.py    Pygame rendering + player map editor.
-test_your_brain.py       Standalone Brain tester — validate an algorithm with no pygame needed.
+as for changing names of file and constant updating we will upload this part at the end of the project
 
-sa_costfunction.py       SA — cost function (distance + exposure risk).
-sa_annealing.py          SA — annealing search + live decision integration.
-
-astar_brain.py            A* — pathfinding, replanning, nodes-expanded metric.        [ in progress ]
-ga_encoding.py             GA — genome encoding + fitness function.                     [ in progress ]
-ga_training.py             GA — selection, crossover, mutation, self-play training.     [ in progress ]
-```
-
----
 
 ## Team & Contributions
 
 | Member | Branch | Owns | Status |
 |---|---|---|---|
-| [Name] | `main` (shared) | Framework — `sightline_core.py`, `sightline_engine.py` | ✅ Built & tested |
-| [Name] | `main` (shared) | Frontend — `sightline_frontend.py`, map editor, visual theme | ✅ Built & tested |
-| [Name] | `sa_costfunction_<id>` | SA Dev 1 — cost function (distance + exposure risk) | ✅ Built & tested |
-| Syed Tazammul Haque Tazeem - 0112230061 | `sa_annealing_<id>` | SA Dev 2 — annealing search + live integration | ✅ Built & tested |
-| Md. Rayhan Islam Showrav | `astar_0112230810` | A\* Developer — pathfinding, replanning, metrics | ⏳ In progress |
-| Ziaul Islam Palash | `GA-1<011222069>` | GA Dev 1 — genome encoding, fitness function | ⏳ In progress |
-| Sadia Islam Prova | `GA-2<011222077>` | GA Dev 2 — selection, crossover, mutation, training loop | ⏳ In progress |
-
-
+| Abdullah Zabir Elhan, Syed Tazammul Haque Tazeem| `main` (shared) | Framework — `sightline_core.py`, `sightline_engine.py` | 
+| Md. Rayhan Islam Showrav | `main` (shared) | Frontend — `sightline_frontend.py`, map editor, visual theme | 
+| Abdullah Zabir Elhan | SA Dev 1
+| Syed Tazammul Haque Tazeem  | SA Dev 2  
+| Md. Rayhan Islam Showrav | `astar_0112230810` | A\* Developer — pathfinding, replanning, metrics | 
+| Ziaul Islam Palash | `GA-1<011222069>` | GA Dev 1 — genome encoding, fitness function |
+| Sadia Islam Prova  | `ga_training_<id>` | GA Dev 2 — selection, crossover, mutation, training loop |
+| Ziaul Islam Palash, Sadia Islam Prova | Game testing. i.e if any redesign or any problem arrives the redesign is needed they will announce it | in progress......
 
 ### Simulated Annealing — what's already validated
 
