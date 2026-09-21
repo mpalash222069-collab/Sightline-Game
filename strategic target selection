@@ -1,0 +1,95 @@
+    def evaluate_optimal_target(self, agent, grid, all_agents, joker=None):
+        if self.swap_cooldown > 0:
+            self.swap_cooldown -= 1
+
+        guns, swords = [], []
+        for y in range(grid.rows):
+            for x in range(grid.cols):
+                t = grid.tiles[y][x]
+                if t == GUN:
+                    guns.append((x, y))
+                elif t == SWORD:
+                    swords.append((x, y))
+
+        pos = (agent.x, agent.y)
+        best_gun = min(guns, key=lambda p: manhattan(pos, p)) if guns else None
+        best_sword = min(swords, key=lambda p: manhattan(pos, p)) if swords else None
+
+        other_living = [a for a in all_agents if a.id != agent.id and a.alive]
+        other_living.sort(key=lambda e: manhattan(pos, (e.x, e.y)))
+
+        joker_alive = bool(joker and getattr(joker, 'alive', False))
+        joker_pos = (joker.x, joker.y) if joker_alive else None
+        joker_facing = getattr(joker, 'facing', 'down') if joker_alive else 'down'
+
+        wounded_prefix = "[WOUNDED 1 HP] " if agent.is_wounded else ""
+
+        if not agent.armed:
+            if best_gun and not best_sword:
+                self.dialogue = f"{wounded_prefix}Annealing toward the Rifle!"
+                return ("GET_WEAPON", best_gun)
+            if best_sword and not best_gun:
+                self.dialogue = f"{wounded_prefix}Annealing toward the Blade!"
+                return ("GET_WEAPON", best_sword)
+            if best_gun and best_sword:
+                gun_dist = manhattan(pos, best_gun)
+                sword_dist = manhattan(pos, best_sword)
+                joker_risk = 10 if (joker_alive and joker_pos and manhattan(joker_pos, best_gun) <= 2) else 0
+                if (gun_dist + joker_risk) <= (sword_dist + 3):
+                    self.dialogue = f"{wounded_prefix}Cooling toward the Rifle!"
+                    return ("GET_WEAPON", best_gun)
+                else:
+                    self.dialogue = f"{wounded_prefix}Rifle guarded. Annealing to Sword!"
+                    return ("GET_WEAPON", best_sword)
+
+            if other_living:
+                nearest = other_living[0]
+                self.dialogue = f"{wounded_prefix}Unarmed! Annealed stalking of {nearest.algo_type}!"
+                ambush_tiles = self.get_flank_tiles((nearest.x, nearest.y), nearest.facing, grid)
+                return ("STALK", ambush_tiles[0])
+            return ("ROAM", (grid.cols // 2, grid.rows // 2))
+
+        if agent.armed and agent.weapon_type == "SWORD":
+            if best_gun and self.swap_cooldown <= 0:
+                joker_blocking = joker_alive and joker_pos and manhattan(joker_pos, best_gun) <= 1
+                if not joker_blocking:
+                    test_path = self.simulated_annealing_search(pos, best_gun, grid, joker_pos, joker_alive)
+                    if test_path:
+                        self.swap_cooldown = 16
+                        self.dialogue = f"{wounded_prefix}Upgrading: Dropping blade for Rifle!"
+                        return ("UPGRADE_GUN", best_gun)
+
+            dist_joker = manhattan(pos, joker_pos) if (joker_alive and joker_pos) else 999
+            dist_rival = manhattan(pos, (other_living[0].x, other_living[0].y)) if other_living else 999
+
+            if joker_alive and joker_pos and (dist_joker <= dist_rival or not other_living):
+                ambush_tiles = self.get_flank_tiles(joker_pos, joker_facing, grid)
+                best_flank = min(ambush_tiles, key=lambda p: manhattan(pos, p))
+                self.dialogue = f"{wounded_prefix}Blade armed! Annealed stalk on Joker's rear!"
+                return ("KILL_JOKER", best_flank)
+
+            if other_living:
+                nearest = other_living[0]
+                ambush_tiles = self.get_flank_tiles((nearest.x, nearest.y), nearest.facing, grid)
+                best_flank = min(ambush_tiles, key=lambda p: manhattan(pos, p))
+                self.dialogue = f"{wounded_prefix}Tracking nearest rival {nearest.algo_type}!"
+                return ("HUNT_AGENT", best_flank)
+
+        if agent.armed and agent.weapon_type == "GUN":
+            dist_joker = manhattan(pos, joker_pos) if (joker_alive and joker_pos) else 999
+            dist_rival = manhattan(pos, (other_living[0].x, other_living[0].y)) if other_living else 999
+
+            if joker_alive and joker_pos and (dist_joker <= dist_rival or not other_living):
+                ambush_tiles = self.get_flank_tiles(joker_pos, joker_facing, grid)
+                best_flank = min(ambush_tiles, key=lambda p: manhattan(pos, p))
+                self.dialogue = f"{wounded_prefix}Rifle ready! Annealed flank on Joker!"
+                return ("KILL_JOKER", best_flank)
+
+            if other_living:
+                nearest = other_living[0]
+                ambush_tiles = self.get_flank_tiles((nearest.x, nearest.y), nearest.facing, grid)
+                best_flank = min(ambush_tiles, key=lambda p: manhattan(pos, p))
+                self.dialogue = f"{wounded_prefix}Hunting nearest rival {nearest.algo_type}!"
+                return ("HUNT_AGENT", best_flank)
+
+        return ("ROAM", (grid.cols // 2, grid.rows // 2))
